@@ -12,22 +12,32 @@ export default function GeneratePage() {
     const [replies, setReplies] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [copiedId, setCopiedId] = useState<string | null>(null);
+    const [currentPosts, setCurrentPosts] = useState<any[]>([]);
     const router = useRouter();
 
     useEffect(() => {
+        let targetPosts: any[] = selectedPosts;
+        let targetLink = affiliateLink;
+
+        // Elite Demo Mode: Automatic fallback
         if (selectedPosts.length === 0) {
-            router.push("/dashboard");
-            return;
+            targetPosts = [
+                { id: "demo-1", platform: "Reddit", text: "What really separates the top 1% of SaaS founders from the rest?", engagement: "450 Upvotes", score: 95, url: "#" },
+                { id: "demo-2", platform: "YouTube", text: "The unspoken truth about scaling your agency to $50k/mo.", engagement: "12K Views", score: 98, url: "#" }
+            ];
+            targetLink = "https://replyradar.ai";
         }
-        handleGenerate();
+
+        setCurrentPosts(targetPosts);
+        generate(targetPosts, targetLink);
     }, []);
 
-    const handleGenerate = async () => {
+    const generate = async (posts: any[], link: string) => {
         setLoading(true);
         try {
             const resp = await fetch("/api/replies", {
                 method: "POST",
-                body: JSON.stringify({ posts: selectedPosts, affiliateLink })
+                body: JSON.stringify({ posts, affiliateLink: link })
             });
             const data = await resp.json();
             setReplies(data.results || []);
@@ -36,6 +46,10 @@ export default function GeneratePage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleRegenerate = () => {
+        generate(currentPosts, affiliateLink || "https://replyradar.ai");
     };
 
     const handleCopy = (text: string, id: string) => {
@@ -76,7 +90,7 @@ export default function GeneratePage() {
                 <div className="flex flex-col items-end gap-3">
                     <span className="text-[10px] font-black tracking-[0.2em] uppercase text-[#475569]">Context Consistency: 98%</span>
                     <button
-                        onClick={handleGenerate}
+                        onClick={handleRegenerate}
                         disabled={loading}
                         className="elite-btn-outline"
                     >
