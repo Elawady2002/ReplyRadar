@@ -26,7 +26,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                             <Zap size={14} className="text-[#D4AF37]" />
                             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37]">Active Intelligence Engine</span>
                         </div>
-                        <WelcomeBanner />
+                        {pathname === "/dashboard" && <WelcomeBanner />}
                     </header>
                     {children}
                     <div className="mt-20">
