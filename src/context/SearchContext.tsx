@@ -78,7 +78,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
         await supabase.from("search_history").insert([{ keyword: k }]);
     };
 
-    const resetSession = () => {
+    const resetSession = async () => {
         setKeyword("");
         setVariations([]);
         setSelectedKeyword("");
@@ -86,6 +86,10 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
         setSelectedPosts([]);
         setResults([]);
         setAffiliateLink("");
+        setHistory([]);
+        localStorage.removeItem("onetap_history");
+        await supabase.auth.signOut();
+        window.location.href = "/login";
     };
 
     return (

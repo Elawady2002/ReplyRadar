@@ -65,7 +65,7 @@ export function Sidebar() {
                                     key={step.path}
                                     href={step.path}
                                     className={clsx(
-                                        "command-nav-link group py-5",
+                                        "command-nav-link group py-5 whitespace-nowrap",
                                         isActive && "active"
                                     )}
                                 >
@@ -90,7 +90,7 @@ export function Sidebar() {
                                     key={step.path}
                                     href={step.path}
                                     className={clsx(
-                                        "command-nav-link group py-5 transition-all duration-300",
+                                        "command-nav-link group py-5 transition-all duration-300 whitespace-nowrap",
                                         isActive ? "text-[#D4AF37] bg-[#D4AF37]/5" : "text-[#475569] hover:bg-[#D4AF37]/5"
                                     )}
                                 >
@@ -102,6 +102,17 @@ export function Sidebar() {
                                 </Link>
                             );
                         })}
+                    </div>
+                    <div className="flex flex-col gap-2 mt-auto pt-10">
+                        <button
+                            onClick={resetSession}
+                            className="command-nav-link group py-5 text-red-500/60 hover:text-red-500 hover:bg-red-500/5 mt-auto transition-all duration-300 whitespace-nowrap"
+                        >
+                            <div className="flex items-center gap-4">
+                                <LogOut size={18} />
+                                <span className="tracking-[0.2em] font-medium">Logout</span>
+                            </div>
+                        </button>
                     </div>
                 </nav>
             </div>
