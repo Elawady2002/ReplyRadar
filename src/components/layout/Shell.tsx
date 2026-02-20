@@ -20,7 +20,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <Sidebar />
             <main className="flex-1 overflow-y-auto scroll-smooth relative">
                 <div className="px-16 pt-10 pb-16 max-w-7xl mx-auto min-h-full flex flex-col">
-                    {pathname === "/dashboard" && <GlobalPromotionBanner />}
+                    <GlobalPromotionBanner />
                     <header className="flex flex-col gap-6 mb-20">
                         <div className="flex items-center gap-3 bg-(--gold-tint-10) w-fit px-4 py-1.5 border border-(--gold-primary)/20">
                             <Zap size={14} className="text-[#D4AF37]" />
