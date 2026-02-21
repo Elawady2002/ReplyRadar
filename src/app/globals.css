@@ -106,7 +106,7 @@
 
   .command-nav-link {
     @apply flex items-center justify-between px-5 py-4 rounded-xl text-sm transition-all duration-300 relative overflow-hidden;
-    @apply text-text-secondary hover:text-text-primary hover:bg-white/[0.03];
+    @apply text-text-secondary hover:text-text-primary hover:bg-white/3;
   }
 
   .command-nav-link.active {

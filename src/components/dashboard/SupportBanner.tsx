@@ -23,7 +23,7 @@ export function SupportBanner() {
                 </div>
             </div>
 
-            <button className="btn-secondary h-12 px-8 whitespace-nowrap bg-white/[0.02] border-white/10 hover:bg-white/[0.05] transition-all duration-300">
+            <button className="btn-secondary h-12 px-8 whitespace-nowrap bg-white/2 border-white/10 hover:bg-white/5 transition-all duration-300">
                 <span>Access Documentation</span>
                 <ExternalLink size={16} className="text-text-muted" />
             </button>
