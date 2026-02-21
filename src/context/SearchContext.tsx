@@ -86,6 +86,33 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
         fetchHistory();
     }, []);
 
+    // Save current search state to local storage for persistence on refresh
+    useEffect(() => {
+        if (variations.length > 0 || selectedKeyword) {
+            const searchState = {
+                variations,
+                selectedKeyword,
+                keyword
+            };
+            localStorage.setItem("onetap_current_search", JSON.stringify(searchState));
+        }
+    }, [variations, selectedKeyword, keyword]);
+
+    // Load current search state on mount
+    useEffect(() => {
+        const savedState = localStorage.getItem("onetap_current_search");
+        if (savedState) {
+            try {
+                const { variations: v, selectedKeyword: sk, keyword: k } = JSON.parse(savedState);
+                if (v) setVariations(v);
+                if (sk) setSelectedKeyword(sk);
+                if (k) setKeyword(k);
+            } catch (e) {
+                console.error("Failed to parse saved search state:", e);
+            }
+        }
+    }, []);
+
     const addToHistory = async (k: string) => {
         const newHistory = [k, ...history.filter(h => h !== k)].slice(0, 5);
         setHistory(newHistory);
@@ -106,6 +133,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
         setReplies([]);
         setHistory([]);
         localStorage.removeItem("onetap_history");
+        localStorage.removeItem("onetap_current_search");
         await supabase.auth.signOut();
         window.location.href = "/login";
     };
