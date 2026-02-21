@@ -29,6 +29,12 @@ export default function Dashboard() {
                 body: JSON.stringify({ keyword: searchVal })
             });
             const data = await resp.json();
+
+            if (!resp.ok) {
+                alert(data.error || "Search failed. Please try again.");
+                return;
+            }
+
             setVariations(data.variations || []);
 
             // Clear keyword only if it was manual search
@@ -37,6 +43,7 @@ export default function Dashboard() {
             router.push("/radar");
         } catch (e) {
             console.error(e);
+            alert("A network error occurred. Please check your connection.");
         } finally {
             setLoading(false);
             setSearchingItem(null);

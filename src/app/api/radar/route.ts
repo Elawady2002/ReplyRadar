@@ -36,19 +36,10 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ variations });
     } catch (error: any) {
-        console.error("Radar Error (Falling back to Mock Data):", error);
-
-        // Mock Variations relevant to the input
-        const base = keyword;
-        const mockVariations = [
-            `${base} Growth Strategies`,
-            `Best ${base} Tools 2024`,
-            `How to Start ${base}`,
-            `${base} for Beginners`,
-            `${base} Automation Hacks`,
-            `Scaling ${base} Business`
-        ];
-
-        return NextResponse.json({ variations: mockVariations, warning: "Falling back to mock data due to processing error." });
+        console.error("Radar Error:", error);
+        return NextResponse.json(
+            { error: error.message || "Failed to analyze marketplace. Please try again." },
+            { status: 500 }
+        );
     }
 }

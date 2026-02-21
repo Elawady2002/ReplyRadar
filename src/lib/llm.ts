@@ -26,14 +26,14 @@ export async function callChatGPT(messages: { role: string; content: string }[])
 
     const data = await response.json();
     console.log(`ChatGPT API Response (${host}):`, JSON.stringify(data).substring(0, 200) + "...");
-    
+
     const result = data.result || data.choices?.[0]?.message?.content || data.response || null;
-    
+
     if (!result) {
         console.error("ChatGPT API Error: Unexpected response structure", data);
         throw new Error("ChatGPT API Error: Unexpected response structure");
     }
-    
+
     return typeof result === 'string' ? result : JSON.stringify(result);
 }
 
@@ -46,7 +46,7 @@ export async function expandKeywords(keyword: string): Promise<string[]> {
         return JSON.parse(cleaned);
     } catch (e) {
         console.error("Failed to parse keyword variations:", result);
-        return [keyword, `${keyword} review`, `${keyword} vs`].slice(0, 10);
+        throw new Error("Failed to process market variations. Please try again.");
     }
 }
 
@@ -58,7 +58,7 @@ export async function classifyActivity(keyword: string, sampleData: string): Pro
         const cleaned = result.replace(/```json|```/g, '').trim();
         return JSON.parse(cleaned);
     } catch (e) {
-        return { level: "Active", count: 0, classification: "Analysis failed, please try again." };
+        throw new Error("Market analysis failed. Please try again.");
     }
 }
 
