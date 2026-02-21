@@ -12,6 +12,18 @@ export async function POST(req: Request) {
 
         if (!body.keyword) return NextResponse.json({ error: "Keyword required" }, { status: 400 });
 
+        const { data: existing } = await supabase
+            .from("keyword_variations")
+            .select("variations")
+            .eq("parent_keyword", keyword)
+            .single();
+
+        if (existing) {
+            console.log(">>> [API/RADAR] Cache Hit for:", keyword);
+            return NextResponse.json({ variations: existing.variations });
+        }
+
+        console.log(">>> [API/RADAR] Cache Miss. Calling LLM...");
         const variations = await expandKeywords(body.keyword);
 
         // Persist to Supabase

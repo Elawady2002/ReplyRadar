@@ -56,16 +56,29 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     // Load history from Supabase on mount
     useEffect(() => {
         const fetchHistory = async () => {
-            const { data, error } = await supabase
-                .from("search_history")
-                .select("keyword")
-                .order("created_at", { ascending: false })
-                .limit(5);
+            try {
+                const { data, error } = await supabase
+                    .from("search_history")
+                    .select("keyword")
+                    .order("created_at", { ascending: false })
+                    .limit(20); // Get more to handle duplicates manually if needed
 
-            if (!error && data) {
-                setHistory(data.map(item => item.keyword));
-            } else {
-                // Fallback to local storage if supabase fails or is empty
+                if (!error && data) {
+                    // Filter duplicates and take top 5
+                    const uniqueKeywords: string[] = [];
+                    data.forEach(item => {
+                        if (!uniqueKeywords.includes(item.keyword) && uniqueKeywords.length < 5) {
+                            uniqueKeywords.push(item.keyword);
+                        }
+                    });
+                    setHistory(uniqueKeywords);
+                    localStorage.setItem("onetap_history", JSON.stringify(uniqueKeywords));
+                } else {
+                    const saved = localStorage.getItem("onetap_history");
+                    if (saved) setHistory(JSON.parse(saved));
+                }
+            } catch (e) {
+                console.error("Error fetching history:", e);
                 const saved = localStorage.getItem("onetap_history");
                 if (saved) setHistory(JSON.parse(saved));
             }

@@ -2,20 +2,25 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, History, ArrowRight, Activity, Globe, Info } from "lucide-react";
+import { Search, History, ArrowRight, Activity, Globe, Info, Loader2 } from "lucide-react";
 import { useSearch } from "@/context/SearchContext";
 import { motion } from "framer-motion";
+import { clsx } from "clsx";
 
 export default function Dashboard() {
     const { keyword, setKeyword, setVariations, history, addToHistory } = useSearch();
     const [loading, setLoading] = useState(false);
+    const [searchingItem, setSearchingItem] = useState<string | null>(null);
     const router = useRouter();
 
     const handleSearch = async (val?: string) => {
+        const isFromHistory = !!val;
         const searchVal = val || keyword;
         if (!searchVal) return;
 
         setLoading(true);
+        if (isFromHistory) setSearchingItem(val);
+
         addToHistory(searchVal);
 
         try {
@@ -25,11 +30,16 @@ export default function Dashboard() {
             });
             const data = await resp.json();
             setVariations(data.variations || []);
+
+            // Clear keyword only if it was manual search
+            if (!isFromHistory) setKeyword("");
+
             router.push("/radar");
         } catch (e) {
             console.error(e);
         } finally {
             setLoading(false);
+            setSearchingItem(null);
         }
     };
 
@@ -63,8 +73,17 @@ export default function Dashboard() {
                         disabled={loading || !keyword}
                         className="btn-primary min-w-[200px] h-14 shadow-gold"
                     >
-                        {loading ? "Analyzing..." : "Start New Search"}
-                        <ArrowRight size={20} />
+                        {loading && !searchingItem ? (
+                            <>
+                                <Loader2 className="animate-spin" size={20} />
+                                <span>Analyzing...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span>Start New Search</span>
+                                <ArrowRight size={20} />
+                            </>
+                        )}
                     </button>
                 </div>
             </section>
@@ -85,13 +104,18 @@ export default function Dashboard() {
                             <button
                                 key={i}
                                 onClick={() => handleSearch(h)}
-                                className="flex items-center justify-between p-4 bg-page/50 border border-border-dim rounded-lg hover:border-accent/40 hover:bg-surface transition-all group group text-left"
+                                disabled={loading}
+                                className="flex items-center justify-between p-4 bg-page/50 border border-border-dim rounded-lg hover:border-accent/40 hover:bg-surface transition-all group text-left disabled:opacity-50"
                             >
                                 <div className="flex items-center gap-3">
-                                    <Globe size={14} className="text-text-muted group-hover:text-accent" />
+                                    <Globe size={14} className={clsx("text-text-muted group-hover:text-accent", searchingItem === h && "text-accent")} />
                                     <span className="text-sm font-medium text-text-secondary group-hover:text-text-primary">{h}</span>
                                 </div>
-                                <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-all text-accent" />
+                                {searchingItem === h ? (
+                                    <Loader2 className="animate-spin text-accent" size={14} />
+                                ) : (
+                                    <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-all text-accent" />
+                                )}
                             </button>
                         )) : (
                             <div className="col-span-2 py-10 text-center border border-dashed border-border-dim rounded-lg">
