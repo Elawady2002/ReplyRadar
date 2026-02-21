@@ -6,18 +6,21 @@ export async function searchSocialData(keyword: string) {
         throw new Error("Missing SCRAPERAPI_KEY");
     }
 
-    // We will prioritize Reddit through RapidAPI if possible, or use ScraperAPI for a broad search
-    // Let's use ScraperAPI to crawl Google for recent discussions as it's more robust for general niches
-    const targetUrl = `https://www.google.com/search?q=site%3Areddit.com+OR+site%3Ayoutube.com+${encodeURIComponent(keyword)}+"comment"+OR+"post"+after%3A2024-01-01`;
-    const scraperUrl = `http://api.scraperapi.com/?api_key=${scraperKey}&url=${encodeURIComponent(targetUrl)}&render=true`;
-
     try {
-        const response = await fetch(scraperUrl);
-        if (!response.ok) throw new Error("ScraperAPI failed");
+        // We will prioritize Reddit through RapidAPI if possible, or use ScraperAPI for a broad search
+        // Let's use ScraperAPI to crawl Google for recent discussions as it's more robust for general niches
+        const targetUrl = `https://www.google.com/search?q=site%3Areddit.com+OR+site%3Ayoutube.com+${encodeURIComponent(keyword)}+"comment"+OR+"post"+after%3A2024-01-01`;
+        const scraperUrl = `https://api.scraperapi.com/?api_key=${scraperKey}&url=${encodeURIComponent(targetUrl)}&render=true`;
 
-        // In a real implementation, we would use a parser like Cheerio here.
-        // For this context, we will perform a "smart fetch" or use a secondary RapidAPI if ScraperAPI is just for the proxy.
-        // However, the user specifically asked for ScraperAPI + ChatGPT integration.
+        try {
+            const response = await fetch(scraperUrl);
+            if (!response.ok) {
+                console.error("ScraperAPI failed, skipping Google search results.");
+            }
+            // Even if response is not ok, we continue to supplement with RapidAPI
+        } catch (e) {
+            console.error("ScraperAPI fetch error:", e);
+        }
 
         // Let's supplement with RapidAPI Reddit for structured data if available
         const redditResp = await fetch(`https://reddit-api.p.rapidapi.com/search?q=${encodeURIComponent(keyword)}&sort=new`, {

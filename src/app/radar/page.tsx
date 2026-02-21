@@ -8,7 +8,7 @@ import { useState } from "react";
 import { clsx } from "clsx";
 
 export default function RadarPage() {
-    const { variations, setSelectedKeyword, selectedKeyword, setAnalysis, history, setVariations, setKeyword } = useSearch();
+    const { variations, setSelectedKeyword, selectedKeyword, setAnalysis, history, setVariations, setKeyword, keyword } = useSearch();
     const [loading, setLoading] = useState(false);
     const [fetchingHistory, setFetchingHistory] = useState<string | null>(null);
     const router = useRouter();
@@ -73,34 +73,44 @@ export default function RadarPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 {/* Sidebar: Recent Searches */}
-                <div className="card-base flex flex-col gap-6">
-                    <div className="flex items-center gap-2 border-b border-border-dim/50 pb-4">
-                        <History size={18} className="text-accent" />
-                        <h3 className="text-lg">Recent</h3>
+                <aside className="flex flex-col gap-6">
+                    <div className="card-base flex flex-col gap-6 h-full">
+                        <div className="flex items-center gap-2 border-b border-border-dim/50 pb-4">
+                            <History size={18} className="text-accent" />
+                            <h3 className="text-lg">Recent</h3>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            {history.length > 0 ? history.map((h, i) => {
+                                const isActive = keyword === h;
+                                return (
+                                    <button
+                                        key={i}
+                                        onClick={() => fetchVariationsForHistory(h)}
+                                        disabled={fetchingHistory !== null || loading}
+                                        className={clsx(
+                                            "flex items-center justify-between p-4 rounded-xl border transition-all text-left",
+                                            isActive || fetchingHistory === h
+                                                ? "bg-accent/10 border-accent/40 shadow-sm"
+                                                : "bg-surface border-border-dim hover:border-accent/40 hover:bg-surface-lighter"
+                                        )}
+                                    >
+                                        <span className={clsx(
+                                            "text-sm font-medium truncate",
+                                            isActive ? "text-accent" : "text-text-secondary"
+                                        )}>{h}</span>
+                                        {fetchingHistory === h ? (
+                                            <Loader2 className="animate-spin text-accent" size={14} />
+                                        ) : (
+                                            <ArrowRight size={14} className={clsx(isActive ? "text-accent" : "text-text-muted")} />
+                                        )}
+                                    </button>
+                                );
+                            }) : (
+                                <p className="text-xs text-text-muted text-center py-8 italic">No recent history</p>
+                            )}
+                        </div>
                     </div>
-                    <div className="flex flex-col gap-2">
-                        {history.length > 0 ? history.map((h, i) => (
-                            <button
-                                key={i}
-                                onClick={() => fetchVariationsForHistory(h)}
-                                disabled={fetchingHistory !== null || loading}
-                                className={clsx(
-                                    "flex items-center justify-between p-3 rounded-lg border transition-all text-left",
-                                    fetchingHistory === h ? "bg-accent/10 border-accent/40" : "bg-page/50 border-border-dim hover:border-accent/40 hover:bg-surface"
-                                )}
-                            >
-                                <span className="text-xs font-medium text-text-secondary truncate max-w-[120px]">{h}</span>
-                                {fetchingHistory === h ? (
-                                    <Loader2 className="animate-spin text-accent" size={12} />
-                                ) : (
-                                    <ArrowRight size={12} className="text-text-muted" />
-                                )}
-                            </button>
-                        )) : (
-                            <p className="text-xs text-text-muted text-center py-4">No history</p>
-                        )}
-                    </div>
-                </div>
+                </aside>
 
                 {/* Main Content: Variations */}
                 <div className="card-base lg:col-span-3 flex flex-col gap-8">
